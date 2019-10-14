@@ -6,9 +6,9 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using myvideogamelist.Models;
+using Mvgl.Models;
 
-namespace myvideogamelist.Services
+namespace Mvgl.Services
 {
 	public interface IUserService
 	{

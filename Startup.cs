@@ -4,9 +4,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Cors;
 
-namespace myvideogamelist
+namespace Mvgl
 {
 	public class Startup
 	{
@@ -32,7 +31,12 @@ namespace myvideogamelist
 				options.AddDefaultPolicy(
 					builder =>
 					{
-						builder.WithOrigins("http://localhost:4200").AllowAnyHeader();
+#if DEBUG
+						builder.WithOrigins("http://localhost:4200", "http://localhost:4800").AllowAnyHeader();
+#endif
+#if RELEASE
+						builder.WithOrigins("https://myvideogamelist.net").AllowAnyHeader();
+#endif
 					});
 			});
 
@@ -43,6 +47,9 @@ namespace myvideogamelist
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 		{
+
+		
+
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();

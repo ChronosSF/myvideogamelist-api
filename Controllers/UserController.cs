@@ -1,111 +1,138 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Authentication;
 using Microsoft.AspNetCore.Cors;
-using myvideogamelist.Models;
-using Google.Apis.Auth.OAuth2;
+using Mvgl.Models;
 
-using System.Security.Claims;
-
-namespace myvideogamelist.Controllers
+namespace Mvgl.Controllers
 {
 	[Authorize]
 	[ApiController]
 	public class UsersController : ControllerBase
 	{
-		
-		[AllowAnonymous]
-		[EnableCors]
-		[HttpPost]
-		[Route("ExternalLogin", Name = "ExternalLogin")]
-		public async IActionResult GetExternalLogin(ExternalUser externalUser)
-		{
 
-			ClaimsIdentity identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationType);
-			Authentication.SignOut(DefaultAuthenticationTypes.ExternalCookie);
-			Authentication.SignIn(identity);
-
-			return Ok(new JWT);
-
-
-			//if (error != null)
-			//{
-			//	return Redirect(Url.Content("~/") + "#error=" + System.Uri.EscapeDataString(error));
-			//}
-
-			//if (!User.Identity.IsAuthenticated)
-			//{
-			//	return new ChallengeResult(provider, this);
-			//}
-
-			//ExternalLoginData externalLogin = ExternalUser.FromIdentity(User.Identity as ClaimsIdentity);
-
-			//if (externalLogin == null)
-			//{
-			//	return InternalServerError();
-			//}
-
-			//if (externalLogin.LoginProvider != provider)
-			//{
-			//	Authentication.SignOut(DefaultAuthenticationTypes.ExternalCookie);
-			//	return new ChallengeResult(provider, this);
-			//}
-
-			//string steamId = SteamServiceProvider.SteamUserId(externalLogin.ProviderKey);
-
-			//ApplicationUser user = await UserManager.FindByIdAsync(steamId);
-
-			//bool hasRegistered = user != null;
-			//string returnUrl = "";
-
-			//if (!hasRegistered)
-			//{
-			//	if (externalLogin.LoginProvider == "Steam")
-			//	{
-			//		IdentityResult x = await this.Register(externalLogin);
-			//		if (!x.Succeeded)
-			//		{
-			//			return InternalServerError();
-			//		}
-			//		user = await UserManager.FindByIdAsync(steamId);
-			//		// Upon registration, redirect to the user's profile for information setup.
-			//		returnUrl = "players/" + steamId + "/true";
-			//	}
-			//}
-			//IEnumerable<Claim> claims = externalLogin.GetClaims();
-			//ClaimsIdentity identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationType);
-			//Authentication.SignOut(DefaultAuthenticationTypes.ExternalCookie);
-			//Authentication.SignIn(identity);
-
-			//return Redirect(CORSConfig.allowedOrigins + '/' + returnUrl); //Ok();
-
-		}
-
-		///private IUserService _userService;
-
-		//public UsersController(IUserService userService)
-		//{
-		//	_userService = userService;
-		//}
-
+		////[OverrideAuthentication]
+		//[HostAuthentication(DefaultAuthenticationTypes.ExternalCookie)]
 		//[AllowAnonymous]
-		//[HttpPost("authenticate")]
-		//public IActionResult Authenticate([FromBody]User userParam)
+		//[Route("ExternalLogin", Name = "ExternalLogin")]
+		//public async Task<IHttpActionResult> GetExternalLogin(string provider, string error = null, string returnUrl = "")
 		//{
-		//	var user = _userService.Authenticate(userParam.UserName, userParam.Password);
+		//	Uri returnUri = new Uri(returnUrl.Length > 0 ? returnUrl : CORSConfig.returnOrigin);
+		//	string returnHost = returnUri.GetLeftPart(UriPartial.Authority);
+		//	string returnPath = returnUri.AbsolutePath;
 
-		//	Google.Apis.Auth.Task<GoogleJsonWebSignature.Payload> ValidateAsync(string jwt, GoogleJsonWebSignature.ValidationSettings validationSettings)
+		//	if (error != null)
+		//	{
+		//		return Redirect(returnHost + "/unauthorized");
+		//	}
 
-		//	if (user == null)
-		//		return BadRequest(new { message = "Username or password is incorrect" });
+		//	if (!User.Identity.IsAuthenticated)
+		//	{
+		//		return new ChallengeResult(provider, this);
+		//	}
 
-		//	return Ok(user);
+		//	ExternalLoginData externalLogin = ExternalLoginData.FromIdentity(User.Identity as ClaimsIdentity);
+
+		//	if (externalLogin == null)
+		//	{
+		//		return Redirect(returnHost + "/unauthorized");
+		//	}
+
+		//	if (externalLogin.LoginProvider != provider)
+		//	{
+		//		Authentication.SignOut(DefaultAuthenticationTypes.ExternalCookie);
+		//		if (provider == "Steam")
+		//		{
+		//			return new ChallengeResult(provider, this);
+		//		}
+		//		else
+		//		{
+		//			return new ChallengeResult(provider, this, Url.Link("ActionApi", new { controller = "Account", action = "AddExternalLogin", userId = GetAuthUser().Id }));
+		//		}
+		//	}
+
+		//	ApplicationUser user = GetAuthUser();
+
+		//	bool hasRegistered = user != null;
+
+		//	if (!hasRegistered)
+		//	{
+		//		if (externalLogin.LoginProvider == "Steam")
+		//		{
+		//			IdentityResult x = await Register(externalLogin);
+		//			if (!x.Succeeded)
+		//			{
+		//				return Redirect(returnHost + "/unauthorized");
+		//			}
+		//			user = GetAuthUser();
+		//			// Upon registration, redirect to the user's profile for information setup.
+		//			returnPath = "/players/" + user.Id + "/true";
+		//		}
+		//		else
+		//		{
+		//			return Redirect(returnHost + "/addsteam");
+		//		}
+		//	}
+		//	IEnumerable<Claim> claims = externalLogin.GetClaims();
+		//	ClaimsIdentity identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationType);
+		//	Authentication.SignOut(DefaultAuthenticationTypes.ExternalCookie);
+		//	Authentication.SignIn(identity);
+
+		//	return Redirect(returnHost + returnPath);
+
+		//}
+		//// GET api/Account/ExternalLogins?returnUrl=%2F&generateState=true
+		//[AllowAnonymous]
+		//[Route("ExternalLogins")]
+		//public IEnumerable<ExternalLoginViewModel> GetExternalLogins(string returnUrl, bool generateState = false)
+		//{
+		//	IEnumerable<AuthenticationDescription> descriptions = Authentication.GetExternalAuthenticationTypes();
+		//	List<ExternalLoginViewModel> logins = new List<ExternalLoginViewModel>();
+
+		//	string state;
+
+		//	if (generateState)
+		//	{
+		//		const int strengthInBits = 256;
+		//		state = RandomOAuthStateGenerator.Generate(strengthInBits);
+		//	}
+		//	else
+		//	{
+		//		state = null;
+		//	}
+
+		//	foreach (AuthenticationDescription description in descriptions)
+		//	{
+		//		ExternalLoginViewModel login = new ExternalLoginViewModel
+		//		{
+		//			Name = description.Caption,
+		//			Url = Url.Route("ExternalLogin", new
+		//			{
+		//				provider = description.AuthenticationType,
+		//				response_type = "token",
+		//				client_id = Startup.PublicClientId,
+		//				redirect_uri = new Uri(Request.RequestUri, returnUrl).AbsoluteUri,
+		//				state
+		//			}),
+		//			State = state
+		//		};
+		//		logins.Add(login);
+		//	}
+
+		//	return logins;
 		//}
 
-		//[HttpGet]
-		//public IActionResult GetAll()
+		/////private IUserService _userService;
+		/////
+
+
+		//[Route("Logout")]
+		//public IHttpActionResult Logout()
 		//{
-		//	var users = _userService.GetAll();
-		//	return Ok(users);
+		//	Authentication.SignOut(DefaultAuthenticationTypes.ExternalCookie);
+		//	Authentication.SignOut(CookieAuthenticationDefaults.AuthenticationType);
+		//	return Ok();
 		//}
+
 	}
 }

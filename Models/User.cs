@@ -1,6 +1,6 @@
 using System;
 
-namespace myvideogamelist.Models
+namespace Mvgl.Models
 {
 	public class User
 	{
