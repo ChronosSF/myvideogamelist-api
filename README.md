@@ -1,0 +1,1 @@
+[![Build Status](https://dev.azure.com/myvideogamelist/myvideogamelist-api/_apis/build/status/ChronosSF.myvideogamelist-api?branchName=master)](https://dev.azure.com/myvideogamelist/myvideogamelist-api/_build/latest?definitionId=1&branchName=master)
