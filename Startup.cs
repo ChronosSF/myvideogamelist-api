@@ -1,14 +1,14 @@
-using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.EntityFrameworkCore;
-using Mvgl.Data;
-using Mvgl.Models;
+using Microsoft.IdentityModel.Tokens;
+using Mvgl.Helpers;
+using Mvgl.Services;
+using System.Text;
 
 namespace Mvgl
 {
@@ -24,18 +24,43 @@ namespace Mvgl
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddDbContext<ApplicationDbContext>(options =>
-				options.UseSqlServer(
-					Configuration.GetConnectionString("DefaultConnection")));
+			//services.AddDbContext<ApplicationDbContext>(options =>
+			//	options.UseSqlServer(
+			//		Configuration.GetConnectionString("DefaultConnection")));
 
-			services.AddDefaultIdentity<ApplicationUser>()
-				.AddEntityFrameworkStores<ApplicationDbContext>();
+			//services.AddDefaultIdentity<ApplicationUser>()
+			//	.AddEntityFrameworkStores<ApplicationDbContext>();
 
-			services.AddIdentityServer()
-				.AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
+			//services.AddIdentityServer()
+			//	.AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
 
-			services.AddAuthentication()
-				.AddIdentityServerJwt();
+			// configure strongly typed settings objects
+			var appSettingsSection = Configuration.GetSection("AppSettings");
+			services.Configure<AppSettings>(appSettingsSection);
+
+			// configure jwt authentication
+			var appSettings = appSettingsSection.Get<AppSettings>();
+			var key = Encoding.ASCII.GetBytes(appSettings.Secret);
+			services.AddAuthentication(x =>
+			{
+				x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+				x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+			})
+			.AddJwtBearer(x =>
+			{
+				x.RequireHttpsMetadata = false;
+				x.SaveToken = true;
+				x.TokenValidationParameters = new TokenValidationParameters
+				{
+					ValidateIssuerSigningKey = true,
+					IssuerSigningKey = new SymmetricSecurityKey(key),
+					ValidateIssuer = false,
+					ValidateAudience = false
+				};
+			});
+
+			// configure DI for application services
+			services.AddScoped<IUserService, UserService>();
 
 
 			services.Configure<CookiePolicyOptions>(options =>
@@ -58,9 +83,7 @@ namespace Mvgl
 #endif
 					});
 			});
-
-			
-			services.AddMvc(o => o.EnableEndpointRouting = false).SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+			services.AddControllers();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -78,14 +101,16 @@ namespace Mvgl
 
 			app.UseCors();
 			app.UseAuthentication();
-			app.UseIdentityServer();
 			app.UseAuthorization();
 
 			//app.UseHttpsRedirection();
 			app.UseDefaultFiles();
 			app.UseCookiePolicy();
 
-			app.UseMvc();
+			app.UseRouting();
+			app.UseEndpoints(endpoints => {
+				endpoints.MapControllers();
+			});
 		}
 	}
 }

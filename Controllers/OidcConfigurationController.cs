@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Mvgl.Controllers
 {
-    public class OidcConfigurationController : Controller
+	/*public class OidcConfigurationController : Controller
     {
         private readonly ILogger<OidcConfigurationController> logger;
 
@@ -22,5 +22,5 @@ namespace Mvgl.Controllers
             var parameters = ClientRequestParametersProvider.GetClientParameters(HttpContext, clientId);
             return Ok(parameters);
         }
-    }
+    }*/
 }
