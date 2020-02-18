@@ -104,13 +104,13 @@ namespace Mvgl
 
 			app.UseCors();
 			app.UseAuthentication();
-			app.UseAuthorization();
 
 			//app.UseHttpsRedirection();
 			app.UseDefaultFiles();
 			app.UseCookiePolicy();
 
 			app.UseRouting();
+			app.UseAuthorization();
 			app.UseEndpoints(endpoints => {
 				endpoints.MapControllers();
 			});
