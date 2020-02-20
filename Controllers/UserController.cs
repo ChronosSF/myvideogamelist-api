@@ -1,12 +1,12 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Mvgl.Services;
+using Microsoft.AspNetCore.Mvc;
 using Mvgl.Models;
-using System.Linq;
+using Mvgl.Services;
+using System.Collections.Generic;
 
 namespace Mvgl.Controllers
 {
-	[Authorize]
+	//[Authorize]
 	[ApiController]
 	[Route("[controller]")]
 	public class UsersController : ControllerBase
@@ -31,9 +31,16 @@ namespace Mvgl.Controllers
 		}
 
 		[HttpGet]
-		public IActionResult GetAll()
+		public ActionResult<IEnumerable<User>> GetUsers()
 		{
+			//var todoItem = await _context.TodoItems.FindAsync(id);
+
 			var users = _userService.GetAll();
+			if (users == null)
+			{
+				return NotFound();
+			}
+
 			return Ok(users);
 		}
 	}
